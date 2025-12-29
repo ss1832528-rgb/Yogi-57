@@ -2,75 +2,102 @@ import streamlit as st
 import random
 import time
 
-# पेज सेटिंग
-st.set_page_config(page_title="MAHESH AVIATOR ZONE", layout="wide")
+# पेज सेटअप - बिल्कुल प्रो ऐप जैसा
+st.set_page_config(page_title="MAHESH GAME ZONE", layout="wide", initial_sidebar_state="collapsed")
 
-# डेटाबेस (बैलेंस)
-if 'balance' not in st.session_state:
-    st.session_state.balance = 50 # शुरुआती बैलेंस
-
-# --- स्टाइलिंग ---
+# स्टाइलिंग (Professional Dark Theme)
 st.markdown("""
     <style>
-    .main { background-color: #0e1117; color: white; }
-    .stButton>button { width: 100%; border-radius: 5px; background-color: #ff4b4b; color: white; font-weight: bold; }
+    .main { background: linear-gradient(180deg, #1a1a1d 0%, #000000 100%); color: white; }
+    .stButton>button { background: linear-gradient(90deg, #ff4b2b, #ff416c); color: white; border: none; border-radius: 10px; font-weight: bold; }
+    .game-box { border: 1px solid #333; padding: 15px; border-radius: 15px; background: #252525; text-align: center; margin-bottom: 20px; }
+    .balance-box { background: #333; padding: 10px; border-radius: 50px; text-align: center; border: 1px solid gold; color: gold; font-size: 20px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- हैडर ---
-st.markdown("<h1 style='text-align: center; color: #ff4b4b;'>🚀 MAHESH AVIATOR ZONE 🚀</h1>", unsafe_allow_html=True)
-st.markdown(f"<h3 style='text-align: center;'>💰 वॉलेट बैलेंस: ₹{st.session_state.balance}</h3>", unsafe_allow_html=True)
+# डेटाबेस (बैलेंस)
+if 'balance' not in st.session_state:
+    st.session_state.balance = 100
 
-# --- एडमिन पैनल (साइडबार) ---
+# --- हैडर ---
+st.markdown("<h1 style='text-align: center; color: white;'>🎰 MAHESH 66 LOTTERY 🎰</h1>", unsafe_allow_html=True)
+st.markdown(f"<div class='balance-box'>💰 वॉलेट बैलेंस: ₹{st.session_state.balance}</div>", unsafe_allow_html=True)
+st.write("##")
+
+# --- एडमिन पैनल (SIDEBAR) ---
 with st.sidebar:
-    st.header("👑 एडमिन पैनल")
-    pin = st.text_input("सीक्रेट पिन", type="password")
+    st.header("👑 Admin Panel")
+    pin = st.text_input("Secret PIN", type="password")
     if pin == "7860":
-        amt = st.number_input("बैलेंस ऐड करें", step=50)
-        if st.button("Update Balance"):
+        amt = st.number_input("Add Money", step=100)
+        if st.button("Update Now"):
             st.session_state.balance += amt
-            st.success("बैलेंस जुड़ गया!")
+            st.success("Balance Added!")
             st.rerun()
 
-# --- गेम सेलेक्शन (ग्रिड) ---
-st.write("### 🔥 लोकप्रिय खेल (Popular Games)")
-c1, c2 = st.columns(2)
+# --- गेम्स का ग्रिड (जैसे आपकी फोटो में था) ---
+st.write("### 🔥 शीर्ष खेल (Top Games)")
+col1, col2 = st.columns(2)
 
-with c1:
-    # एविएटर की वर्किंग फोटो
-    st.image("https://raw.githubusercontent.com/Yogi-57/ss1832528-rgb/main/aviator_img.jpg", caption="AVIATOR CRASH", use_container_width=True)
-    if st.button("AVIATOR खेलें"):
-        st.session_state.game = "aviator"
+with col1:
+    st.markdown('<div class="game-box">', unsafe_allow_html=True)
+    st.image("https://img.freepik.com/free-vector/aviator-background-with-airplane_1017-43224.jpg", use_container_width=True)
+    if st.button("🚀 AVIATOR (PLAY)"):
+        st.session_state.active_game = "aviator"
+    st.markdown('</div>', unsafe_allow_html=True)
 
-with c2:
-    st.image("https://img.freepik.com/free-vector/casino-banner-design_1017-23117.jpg", caption="SATTA KING", use_container_width=True)
-    if st.button("SATTA KING खेलें"):
-        st.session_state.game = "satta"
+with col2:
+    st.markdown('<div class="game-box">', unsafe_allow_html=True)
+    st.image("https://img.freepik.com/free-vector/casino-glitter-banner_1017-23116.jpg", use_container_width=True)
+    if st.button("🎰 SATTA KING (PLAY)"):
+        st.session_state.active_game = "satta"
+    st.markdown('</div>', unsafe_allow_html=True)
 
 st.write("---")
 
-# --- एविएटर गेम चालू करना ---
-if 'game' in st.session_state and st.session_state.game == "aviator":
-    st.subheader("🛫 Aviator (Live)")
-    bet = st.number_input("बैट की रकम (₹)", min_value=10, step=10)
-    
-    if st.button("🚀 उड़ाएं (Start Flight)"):
-        if st.session_state.balance < bet:
-            st.error("भाई पहले रिचार्ज करो!")
-        else:
-            st.session_state.balance -= bet
-            crash = round(random.uniform(1.1, 4.0), 2)
-            val = 1.0
-            p_holder = st.empty()
-            
-            while val < crash:
-                val += 0.1
-                p_holder.metric("Multiplier", f"{round(val, 2)}x")
-                time.sleep(0.2)
-                if st.button("CASH OUT NOW"): # कैश आउट का लॉजिक
-                    win = bet * val
-                    st.session_state.balance += win
-                    st.success(f"मौज हो गई! ₹{round(win, 2)} जीत गए!")
-                    break
+# --- असली गेम लॉजिक (यही गेम खोलेंगे) ---
+if 'active_game' in st.session_state:
+    if st.session_state.active_game == "aviator":
+        st.subheader("🛫 Aviator Live")
+        bet = st.number_input("बैट की रकम", min_value=10, step=10)
+        if st.button("Start Flight"):
+            if st.session_state.balance < bet:
+                st.error("Balance Low!")
             else:
-                p_holder.error(f"💥 CRASHED AT {crash}x")
+                st.session_state.balance -= bet
+                placeholder = st.empty()
+                crash = round(random.uniform(1.2, 5.0), 2)
+                curr = 1.0
+                while curr < crash:
+                    curr += 0.1
+                    placeholder.metric("Multiplier", f"{round(curr, 2)}x")
+                    time.sleep(0.2)
+                    if st.button("CASH OUT"):
+                        st.session_state.balance += (bet * curr)
+                        st.success(f"Winner! Received: ₹{round(bet*curr, 2)}")
+                        break
+                else:
+                    placeholder.error(f"💥 CRASHED AT {crash}x")
+
+    elif st.session_state.active_game == "satta":
+        st.subheader("🎲 Satta King (1-10)")
+        s_bet = st.number_input("Bet Amount", min_value=10, key="satta_bet")
+        num = st.number_input("Choose Number (1-10)", 1, 10)
+        if st.button("Show Result"):
+            if st.session_state.balance < s_bet:
+                st.error("Low Balance!")
+            else:
+                win_n = random.randint(1, 10)
+                if num == win_n:
+                    st.session_state.balance += (s_bet * 9)
+                    st.balloons()
+                    st.success(f"Winner! Number was {win_n}")
+                else:
+                    st.session_state.balance -= s_bet
+                    st.error(f"Lost! Number was {win_n}")
+
+# --- रिचार्ज सेक्शन ---
+st.write("---")
+with st.expander("💳 रिचार्ज / Deposit"):
+    st.write("UPI ID: **8824558142-2@ibl**")
+    st.markdown('<a href="https://wa.me/918824558142"><button style="width:100%; background:green; color:white; border-radius:10px; padding:10px;">व्हाट्सएप पर स्क्रीनशॉट भेजें</button></a>', unsafe_allow_html=True)
