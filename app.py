@@ -1,103 +1,109 @@
-import streamlit as st
-import random
-import time
-
-# पेज सेटअप - बिल्कुल प्रो ऐप जैसा
-st.set_page_config(page_title="MAHESH GAME ZONE", layout="wide", initial_sidebar_state="collapsed")
-
-# स्टाइलिंग (Professional Dark Theme)
-st.markdown("""
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate 66 Club Clone</title>
     <style>
-    .main { background: linear-gradient(180deg, #1a1a1d 0%, #000000 100%); color: white; }
-    .stButton>button { background: linear-gradient(90deg, #ff4b2b, #ff416c); color: white; border: none; border-radius: 10px; font-weight: bold; }
-    .game-box { border: 1px solid #333; padding: 15px; border-radius: 15px; background: #252525; text-align: center; margin-bottom: 20px; }
-    .balance-box { background: #333; padding: 10px; border-radius: 50px; text-align: center; border: 1px solid gold; color: gold; font-size: 20px; }
+        :root { --bg: #0a0e17; --card: #1c222d; --gold: #f3c34d; --accent: #ff4757; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding-bottom: 70px; }
+        
+        /* Top Bar */
+        .top-nav { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .balance-chip { background: #2d3436; padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold); }
+
+        /* Banner */
+        .banner { width: 95%; height: 150px; background: linear-gradient(45deg, #ff4757, #70a1ff); margin: 10px auto; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
+
+        /* Categories */
+        .categories { display: flex; gap: 10px; overflow-x: auto; padding: 10px; }
+        .cat-btn { background: var(--card); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+        .cat-btn.active { background: var(--gold); color: black; }
+
+        /* Game Grid (30 Games Slot) */
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 10px; }
+        .game-item { background: var(--card); border-radius: 12px; overflow: hidden; text-align: center; border: 1px solid #333; transition: 0.3s; }
+        .game-item:hover { border-color: var(--gold); transform: translateY(-5px); }
+        .game-img { width: 100%; height: 80px; background: #333; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        .game-name { padding: 8px; font-size: 12px; font-weight: bold; }
+
+        /* Action Buttons */
+        .actions { display: flex; gap: 10px; padding: 10px; }
+        .btn-pay { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .dep { background: #2ed573; color: white; }
+        .wit { background: #eccc68; color: black; }
+
+        /* Footer Menu */
+        .footer { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
+        .foot-item { font-size: 12px; text-align: center; color: #aaa; }
     </style>
-    """, unsafe_allow_html=True)
+</head>
+<body>
 
-# डेटाबेस (बैलेंस)
-if 'balance' not in st.session_state:
-    st.session_state.balance = 100
+<div class="top-nav">
+    <div style="font-weight: bold; color: var(--gold);">PREMIUM CLUB</div>
+    <div class="balance-chip">₹ <span id="bal">1500.50</span></div>
+</div>
 
-# --- हैडर ---
-st.markdown("<h1 style='text-align: center; color: white;'>🎰 MAHESH 66 LOTTERY 🎰</h1>", unsafe_allow_html=True)
-st.markdown(f"<div class='balance-box'>💰 वॉलेट बैलेंस: ₹{st.session_state.balance}</div>", unsafe_allow_html=True)
-st.write("##")
+<div class="banner">Mega Jackpot: ₹10,00,000</div>
 
-# --- एडमिन पैनल (SIDEBAR) ---
-with st.sidebar:
-    st.header("👑 Admin Panel")
-    pin = st.text_input("Secret PIN", type="password")
-    if pin == "7860":
-        amt = st.number_input("Add Money", step=100)
-        if st.button("Update Now"):
-            st.session_state.balance += amt
-            st.success("Balance Added!")
-            st.rerun()
+<div class="actions">
+    <button class="btn-pay dep" onclick="showPay('Deposit')">Deposit</button>
+    <button class="btn-pay wit" onclick="showPay('Withdraw')">Withdraw</button>
+</div>
 
-# --- गेम्स का ग्रिड (जैसे आपकी फोटो में था) ---
-st.write("### 🔥 शीर्ष खेल (Top Games)")
-col1, col2 = st.columns(2)
+<div class="categories">
+    <button class="cat-btn active">All Games</button>
+    <button class="cat-btn">Lottery</button>
+    <button class="cat-btn">Slots</button>
+    <button class="cat-btn">Fishing</button>
+    <button class="cat-btn">Casino</button>
+</div>
 
-with col1:
-    st.markdown('<div class="game-box">', unsafe_allow_html=True)
-    st.image("https://img.freepik.com/free-vector/aviator-background-with-airplane_1017-43224.jpg", use_container_width=True)
-    if st.button("🚀 AVIATOR (PLAY)"):
-        st.session_state.active_game = "aviator"
-    st.markdown('</div>', unsafe_allow_html=True)
+<div class="game-grid" id="game-list">
+    </div>
 
-with col2:
-    st.markdown('<div class="game-box">', unsafe_allow_html=True)
-    st.image("https://img.freepik.com/free-vector/casino-glitter-banner_1017-23116.jpg", use_container_width=True)
-    if st.button("🎰 SATTA KING (PLAY)"):
-        st.session_state.active_game = "satta"
-    st.markdown('</div>', unsafe_allow_html=True)
+<div class="footer">
+    <div class="foot-item">🏠<br>Home</div>
+    <div class="foot-item">📊<br>Activity</div>
+    <div class="foot-item">🎁<br>Promotion</div>
+    <div class="foot-item">👤<br>Account</div>
+</div>
 
-st.write("---")
+<script>
+    // 30 Games List
+    const games = [
+        {name: "Win Go 1m", icon: "🔴"}, {name: "Aviator", icon: "✈️"}, {name: "Dragon Tiger", icon: "🐉"},
+        {name: "Mine Game", icon: "💣"}, {name: "7 Up Down", icon: "🎲"}, {name: "Cricket X", icon: "🏏"},
+        {name: "Plinko", icon: "🔵"}, {name: "Slots 777", icon: "🎰"}, {name: "Teen Patti", icon: "🃏"},
+        {name: "Andar Bahar", icon: "🃏"}, {name: "Fruit Line", icon: "🍎"}, {name: "JILI Slot", icon: "👑"},
+        {name: "Fish Hunter", icon: "🐟"}, {name: "Penalty", icon: "⚽"}, {name: "Baccarat", icon: "♠️"},
+        {name: "Roulette", icon: "🎡"}, {name: "Color Pred", icon: "🎨"}, {name: "Wheel Fortune", icon: "🎡"},
+        {name: "Ludo Pro", icon: "♟️"}, {name: "Car Casino", icon: "🚗"}, {name: "Crazy Time", icon: "⏳"},
+        {name: "Mega Ball", icon: "🎱"}, {name: "Spaceman", icon: "👨‍🚀"}, {name: "Dino Run", icon: "🦖"},
+        {name: "Money Roll", icon: "💵"}, {name: "Gold Rush", icon: "⛏️"}, {name: "Candy Party", icon: "🍭"},
+        {name: "Joker Spin", icon: "🤡"}, {name: "Blackjack", icon: "🃏"}, {name: "Turbo Mines", icon: "💎"}
+    ];
 
-# --- असली गेम लॉजिक (यही गेम खोलेंगे) ---
-if 'active_game' in st.session_state:
-    if st.session_state.active_game == "aviator":
-        st.subheader("🛫 Aviator Live")
-        bet = st.number_input("बैट की रकम", min_value=10, step=10)
-        if st.button("Start Flight"):
-            if st.session_state.balance < bet:
-                st.error("Balance Low!")
-            else:
-                st.session_state.balance -= bet
-                placeholder = st.empty()
-                crash = round(random.uniform(1.2, 5.0), 2)
-                curr = 1.0
-                while curr < crash:
-                    curr += 0.1
-                    placeholder.metric("Multiplier", f"{round(curr, 2)}x")
-                    time.sleep(0.2)
-                    if st.button("CASH OUT"):
-                        st.session_state.balance += (bet * curr)
-                        st.success(f"Winner! Received: ₹{round(bet*curr, 2)}")
-                        break
-                else:
-                    placeholder.error(f"💥 CRASHED AT {crash}x")
+    const grid = document.getElementById('game-list');
+    games.forEach(g => {
+        grid.innerHTML += `
+            <div class="game-item" onclick="playGame('${g.name}')">
+                <div class="game-img">${g.icon}</div>
+                <div class="game-name">${g.name}</div>
+            </div>
+        `;
+    });
 
-    elif st.session_state.active_game == "satta":
-        st.subheader("🎲 Satta King (1-10)")
-        s_bet = st.number_input("Bet Amount", min_value=10, key="satta_bet")
-        num = st.number_input("Choose Number (1-10)", 1, 10)
-        if st.button("Show Result"):
-            if st.session_state.balance < s_bet:
-                st.error("Low Balance!")
-            else:
-                win_n = random.randint(1, 10)
-                if num == win_n:
-                    st.session_state.balance += (s_bet * 9)
-                    st.balloons()
-                    st.success(f"Winner! Number was {win_n}")
-                else:
-                    st.session_state.balance -= s_bet
-                    st.error(f"Lost! Number was {win_n}")
+    function showPay(type) {
+        let amt = prompt(`${type} अमाउंट दर्ज करें (₹):`);
+        if(amt) alert(`${type} रिक्वेस्ट ₹${amt} के लिए भेज दी गई है!`);
+    }
 
-# --- रिचार्ज सेक्शन ---
-st.write("---")
-with st.expander("💳 रिचार्ज / Deposit"):
-    st.write("UPI ID: **8824558142-2@ibl**")
-    st.markdown('<a href="https://wa.me/918824558142"><button style="width:100%; background:green; color:white; border-radius:10px; padding:10px;">व्हाट्सएप पर स्क्रीनशॉट भेजें</button></a>', unsafe_allow_html=True)
+    function playGame(name) {
+        alert(name + " गेम अभी लोड हो रहा है... कृपया इंटरनेट चेक करें।");
+    }
+</script>
+
+</body>
+</html>
